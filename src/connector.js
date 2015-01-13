@@ -1,7 +1,8 @@
 var events = require( 'events' ),
 	util = require( 'util' ),
 	pckg = require( '../package.json' ),
-	mongodb = require( 'mongodb' );
+	mongoClient = require('mongodb').MongoClient,
+	ObjectID = require('mongodb').ObjectID;
 
 /**
  * Connects deepstream to MongoDb.
@@ -46,7 +47,7 @@ var events = require( 'events' ),
  	 
  	 // Full connection URL for MongoDb. Format is mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
  	 // More details can be found here: http://docs.mongodb.org/manual/reference/connection-string/
- 	 mongoDbUrl: <String>
+ 	 connectionString: <String>
    }
  *
  * @constructor
@@ -55,6 +56,16 @@ var Connector = function( options ) {
 	this.isReady = false;
 	this.name = pckg.name;
 	this.version = pckg.version;
+	this._splitChar = options.splitChar || null;
+	this._defaultCollection = options.defaultCollection || 'deepstream_docs';
+	this._db = null;
+	this._collections = {};
+	
+	if( !options.connectionString ) {
+		throw new Error( 'Missing setting \'connectionString\'' );
+	}
+	
+	mongoClient.connect( options.connectionString, this._onConnect.bind( this ) );
 };
 
 util.inherits( Connector, events.EventEmitter );
@@ -70,7 +81,9 @@ util.inherits( Connector, events.EventEmitter );
  * @returns {void}
  */
 Connector.prototype.set = function( key, value, callback ) {
-	
+	var params = this._getParams( key );
+	value.ds_key = params.id;
+	params.collection.updateOne({ ds_key: params.id }, value, { upsert: true }, callback );
 };
 
 /**
@@ -84,7 +97,21 @@ Connector.prototype.set = function( key, value, callback ) {
  * @returns {void}
  */
 Connector.prototype.get = function( key, callback ) {
+	var params = this._getParams( key );
 	
+	params.collection.findOne({ ds_key: params.id }, function( err, doc ){
+		if( err ) {
+			callback( err );
+		} else {
+			if( doc === null ) {
+				callback( null, null );
+			} else {
+				delete doc._id;
+				delete doc.ds_key;
+				callback( null, doc );
+			}
+		}
+	});
 };
 
 /**
@@ -98,7 +125,44 @@ Connector.prototype.get = function( key, callback ) {
  * @returns {void}
  */
 Connector.prototype.delete = function( key, callback ) {
+	var params = this._getParams( key );
+	params.collection.deleteOne({ ds_key: params.id }, callback );
+};
+
+Connector.prototype._onConnect = function( err, db ) {
+	if( err ) {
+		this.emit( 'error', err );
+		return;
+	}
 	
+	this._db = db;
+	this.isReady = true;
+	this.emit( 'ready' );
+};
+
+Connector.prototype._getParams = function( key ) {
+	var parts = key.split( this._splitChar ),
+		collectionName,
+		id;
+	
+	if( parts.length === 1 ) {
+		collectionName = this._defaultCollection;
+		id = key;
+	}
+	else if( parts.length === 2 ) {
+		collectionName = parts[ 0 ];
+		id = parts[ 1 ];
+	}
+	else {
+		return null;
+	}
+	
+	if( !this._collections[ collectionName ] ) {
+		this._collections[ collectionName ] = this._db.collection( collectionName );
+		this._collections[ collectionName ].ensureIndex({ ds_key: 1 });
+	}
+	
+	return { collection: this._collections[ collectionName ], id: id };
 };
 
 module.exports = Connector;

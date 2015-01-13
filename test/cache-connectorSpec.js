@@ -1,7 +1,7 @@
 /* global describe, expect, it, jasmine */
 var CacheConnector = require( '../src/connector' ),
 	EventEmitter = require( 'events' ).EventEmitter,
-	settings = { port: 6379, host: 'localhost' },
+	settings = { connectionString: 'mongodb://test:test@paulo.mongohq.com:10087/munchkin-dev', splitChar: '/' },
 	MESSAGE_TIME = 20;
 
 describe( 'the message connector has the correct structure', function(){
@@ -13,6 +13,7 @@ describe( 'the message connector has the correct structure', function(){
 	it( 'creates the cacheConnector', function( done ){
 		cacheConnector = new CacheConnector( settings );
 		expect( cacheConnector.isReady ).toBe( false );
+		cacheConnector.on( 'error', function( err ){ throw err; });
 		cacheConnector.on( 'ready', done );
 	});
 	
