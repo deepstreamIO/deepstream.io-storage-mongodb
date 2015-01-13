@@ -1,2 +1,2 @@
-# deepstream.io-cache-and-storage-connector-template
-A template that can be forked to create new cache and storage connectors
+# deepstream.io-storage-mongodb
+A deepstream.io storage connector for MongoDb

@@ -1,61 +1,53 @@
 var events = require( 'events' ),
 	util = require( 'util' ),
-	pckg = require( '../package.json' );
+	pckg = require( '../package.json' ),
+	mongodb = require( 'mongodb' );
 
 /**
- * A template that can be forked to create cache or storage connectors
- * for [deepstream](http://deepstream.io)
- *
- * Cache connectors are classes that connect deepstream to an in-memory cache, e.g. Redis, Memcached,
- * IronCache or Amazon's elastic cache
- *
- * Storage connectors are classes that connect deepstream to a database, e.g. MongoDB, CouchDB, Cassandra or
- * Amazon's DynamoDB. They can also be used with relational databases, but deepstream's data-structures (blocks
- * of JSON, identified by a key) lends itself very well to object/document based databases.
- *
- * Whats this class used for?
- *
- * Both cache and storage connectors expose the same interface and offer similar functionality,
- * yet their role is a little bit different.
- *
- * Deepstream servers don't hold any data themselves. This allows the individual servers to remain
- * stateless and to go down / fail over without causing any data-loss, but it also allows for 
- * the data to be distributed across multiple nodes.
- *
- * Whenever deepstream has to store something, its written to the cache in a blocking fashion, but written to
- * storage in a non blocking way. (Well, its NodeJS, so it's not really 'blocking', but the next callback for
- * this particular update won't be processed until the cache operation is complete)
- *
- * Similarly, whenever an entry needs to be retrieved, deepstream looks for it in the cache first and in storage
- * second. This means that the cache needs to be very fast - and fortunately most caches are. Both Redis and Memcached
- * have proven to be able to return queries within the same millisecond.
- *
- * So why have this distinction between cache and storage at all? Because they complement each other quite well:
- *
- * - Caches need to make a relatively small amount of data accessible at very high speeds. They achieve that by storing
- * 	 the data in memory, rather than on disk (although some, e.g. Redis, write to disk as well). This means that
- * 	 all data is lost when the process exists. Caches also usually don't offer support for elaborate querying.
- *
- * - Databases (storage) offer long-term storage of larger amounts of data and allow for more elaborate ways of querying.
- *   (full-text search, SQL etc.)
+ * Connects deepstream to MongoDb.
  * 
- * Some considerations when implementing a cache/storage connector
- *
- * - this.isReady starts as false. Once the connection to the cache / storage is established, emit a 'ready' event and set
- *   it to true
- *
- * - Whenever a generic error occurs (e.g. an error that's not directly related to a get, set or delete operation, raise
- *   an error event and send the error message as a parameter, e.g. this.emit( 'error', 'connection lost' ); )
- *
- * - whenever an error occurs as part of a get, set or delete operation, pass it to the callback as the first argument,
- *   otherwise pass null
- *
- * - values for set() will be serializable JavaScript objects and are expected to be returned by get as such. It's
- *   therefor up to this class to handle serialisation / de-serialisation, e.g. as JSON or message-pack. Some
- *   systems (e.g. MongoDB) however can also handle raw JSON directly
+ * Collections, ids and performance
+ * --------------------------------------------------
+ * Deepstream treats its storage like a simple key value store. But there are a few things
+ * we can do to speed it up when using MongoDb. Mainly: using smaller (e.g. more granular) collections and using successive Id's
  *
  * 
- * @param {Object} options Any options the connector needs to connect to the cache/db and to configure it.
+ * To support multiple collections pass a splitChar setting to this class. This setting specifies a character 
+ * at which keys will be split and ordered into collections. This sounds a bit complicated, but all that means is the following:
+ * 
+ * Imagine you want to store a few users. Just specify their recordNames as e.g.
+ * 
+ * 	user/i4vcg5j1-16n1qrnziuog
+ *	user/i4vcg5x9-a2wc3g9pbhmi
+ *	user/i4vcg74u-21ufhl1qs8fh
+ * 
+ * and in your options set
+ * 
+ * { splitChar: '/' }
+ * 
+ * This way the MongoDB connector will create a 'user' collection the first time
+ * it encounters this recordName and will subsequently store users in it. This will
+ * improve the speed of read operations since MongoDb has to look through a smaller
+ * amount of datasets to find your record
+ * 
+ * On top of this, it makes sense to use successive ids. MongoDb will optimise collections
+ * by putting documents with similar ids next to each other. Fortunately, the build-in getUid()
+ * method of the deepstream client already produces semi-succesive ids. Notice how the first bits of the
+ * ids (user/i4vcg5) are all the same. These are Base36 encoded timestamps, facilitating almost succesive ordering.
+ * 
+ * @param {Object} options
+ * 
+ * {
+ *    // Optional: Collections for items without a splitChar or if no splitChar is specified. Defaults to 'deepstream_docs'
+ 	 defaultCollection: <String>,
+ 	 
+ 	 // Optional: A char that seperates the collection name from the document id. Defaults to null
+ 	 splitChar: <String>,
+ 	 
+ 	 // Full connection URL for MongoDb. Format is mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+ 	 // More details can be found here: http://docs.mongodb.org/manual/reference/connection-string/
+ 	 mongoDbUrl: <String>
+   }
  *
  * @constructor
  */
