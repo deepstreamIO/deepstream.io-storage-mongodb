@@ -26,6 +26,25 @@ describe( 'the message connector has the correct structure', function(){
 	    expect( cacheConnector instanceof EventEmitter ).toBe( true );
 	});
 	
+	it( 'parses keys', function() {
+		var params = cacheConnector._getParams( 'user/a' );
+		expect( params.collection.collectionName ).toBe( 'user' );
+		expect( params.id ).toBe( 'a' );
+		
+		params = cacheConnector._getParams( 'bla' );
+		expect( params.collection.collectionName ).toBe( 'deepstream_docs' );
+		expect( params.id ).toBe( 'bla' );
+		
+		params = cacheConnector._getParams( 'a/b/c' );
+		expect( params ).toBe( null );
+	});
+	
+	it( 'refuses updates with invalid keys', function() {
+	    cacheConnector.set( '/a/b/c', {}, function( err ){
+	    	expect( err ).toBe( 'Invalid key /a/b/c' );
+	    });
+	});
+	
 	it( 'retrieves a non existing value', function( done ){
 		cacheConnector.get( 'someValue', function( error, value ){
 			expect( error ).toBe( null );

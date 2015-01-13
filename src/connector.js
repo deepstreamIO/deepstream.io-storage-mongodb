@@ -82,6 +82,12 @@ util.inherits( Connector, events.EventEmitter );
  */
 Connector.prototype.set = function( key, value, callback ) {
 	var params = this._getParams( key );
+	
+	if( params === null ) {
+		callback( 'Invalid key ' + key );
+		return;
+	}
+	
 	value.ds_key = params.id;
 	params.collection.updateOne({ ds_key: params.id }, value, { upsert: true }, callback );
 };
@@ -98,6 +104,11 @@ Connector.prototype.set = function( key, value, callback ) {
  */
 Connector.prototype.get = function( key, callback ) {
 	var params = this._getParams( key );
+	
+	if( params === null ) {
+		callback( 'Invalid key ' + key );
+		return;
+	}
 	
 	params.collection.findOne({ ds_key: params.id }, function( err, doc ){
 		if( err ) {
@@ -126,9 +137,24 @@ Connector.prototype.get = function( key, callback ) {
  */
 Connector.prototype.delete = function( key, callback ) {
 	var params = this._getParams( key );
+	
+	if( params === null ) {
+		callback( 'Invalid key ' + key );
+		return;
+	}
+	
 	params.collection.deleteOne({ ds_key: params.id }, callback );
 };
 
+/**
+ * Callback for established (or rejected) connections
+ * 
+ * @param {String} error
+ * @param {MongoClient} db
+ * 
+ * @private
+ * @returns {void}
+ */
 Connector.prototype._onConnect = function( err, db ) {
 	if( err ) {
 		this.emit( 'error', err );
@@ -140,6 +166,21 @@ Connector.prototype._onConnect = function( err, db ) {
 	this.emit( 'ready' );
 };
 
+/**
+ * Determines the document id and the collection
+ * to use based on the provided key
+ * 
+ * Creates the collection if it doesn't exist yet.
+ * 
+ * Since MongoDB ObjecIDs are adhering to a specified format
+ * we'll add a new field for the key called ds_key and index the
+ * collection based on it
+ * 
+ * @param {String} key
+ * 
+ * @private
+ * @returns {Object} {connection: <MongoConnection>, id: <String> }
+ */
 Connector.prototype._getParams = function( key ) {
 	var parts = key.split( this._splitChar ),
 		collectionName,
