@@ -1,7 +1,7 @@
 /* global describe, expect, it, jasmine */
 var CacheConnector = require( '../src/connector' ),
 	EventEmitter = require( 'events' ).EventEmitter,
-	settings = { connectionString: 'mongodb://test:test@paulo.mongohq.com:10087/munchkin-dev', splitChar: '/' },
+	settings = { connectionString: '<enter connection string>', splitChar: '/' },
 	MESSAGE_TIME = 20;
 
 describe( 'the message connector has the correct structure', function(){
