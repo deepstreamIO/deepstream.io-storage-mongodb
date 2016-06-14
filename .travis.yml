@@ -1,0 +1,53 @@
+language: node_js
+
+env:
+  global:
+    - CXX=g++-4.8
+    - MONGODB_CONNECTION_STRING=mongodb://52.59.253.77
+
+node_js:
+  - "stable"
+  - "4.4.5"
+
+matrix:
+  include:
+    - node_js: "4.4.5"
+      os: osx
+
+script:
+  - npm test
+
+after_script:
+  - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+
+before_deploy:
+  - chmod 555 scripts/package.sh && scripts/package.sh
+
+deploy:
+  - provider: s3
+    access_key_id:
+      secure: "CY/dcxTFNWaMTkEpTLXCYUVHAKqy5+w/bGIEBLopDLAgsieHoNkHdi83IlQiNXMbYfyjixPPb5y2JENT9gllAkAZv8TLgGgM5z5Lh5LrnXel72rzlqQfxZevXQ6DU5b6aOzPTgjcjwD401tLlajha5DcNbvZy5dMvi59E6HCGdM="
+    secret_access_key:
+      secure: "Y7GFu19JEXqVf60tTD1I5UjOheG3Tzma8fat0b53A0g50BVCUf68SNBVUKfRSxo1Ja4M81j08tz9924uGC2FVE6iP4G8AwF60aezgfxbaI9ItfFbustSEQJzvetf9JE98GQXEZFptLUSGhsdWJe6P4SgLq1fssmoAQrompNiT9E="
+    bucket: ds-server-artifacts
+    skip_cleanup: true
+    acl: public_read
+    local_dir: build
+    upload-dir: $TRAVIS_REPO_SLUG
+  - provider: releases
+    skip_cleanup: true
+    api_key:
+      secure: "R6SZFsJIBLQl76uzldbQI12x+EYZKseXNVNI7rI43N+6KJLxWTsDH7tuiTImrdMsJmpLhCACHHzA0ZLztFxVpEKduNjdMZGsTEV0JB8zOGbsOfvaOss/l3IsWlhYqSlHe8jnHjZnC+nBEwCdivVamx+zLBw8qVVaG1Lba0Z8DzU="
+    file_glob: true
+    file:
+      - "build/*.tar.gz"
+      - "build/*.zip"
+    on:
+      tags: true
+
+plugins:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-4.8
