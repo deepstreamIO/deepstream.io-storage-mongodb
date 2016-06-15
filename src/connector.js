@@ -1,8 +1,9 @@
 const events = require( 'events' )
-const  util = require( 'util' )
-const  pckg = require( '../package.json' )
-const  mongoClient = require('mongodb').MongoClient
-const  ObjectID = require('mongodb').ObjectID
+const util = require( 'util' )
+const pckg = require( '../package.json' )
+const mongoClient = require('mongodb').MongoClient
+const ObjectID = require('mongodb').ObjectID
+const dataTransform = require( './transform-data' )
 
 /**
  * Connects deepstream to MongoDb.
@@ -88,6 +89,7 @@ Connector.prototype.set = function( key, value, callback ) {
     return
   }
 
+  value = dataTransform.transformValueForStorage( value )
   value.ds_key = params.id
   params.collection.updateOne({ ds_key: params.id }, value, { upsert: true }, callback )
 }
@@ -119,6 +121,7 @@ Connector.prototype.get = function( key, callback ) {
       } else {
         delete doc._id
         delete doc.ds_key
+        doc = dataTransform.transformValueFromStorage( doc )
         callback( null, doc )
       }
     }
