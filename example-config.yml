@@ -1,0 +1,8 @@
+plugins:
+  storage:
+    name: mongodb
+    options:
+      connectionString: ${MONGODB_CONNECTION_STRING}
+      database: 'someDb'
+      defaultTable: 'someTable'
+      splitChar: '/'
