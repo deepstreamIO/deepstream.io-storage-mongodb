@@ -1,7 +1,7 @@
 env:
   global:
     - CXX=g++-4.8
-    - MONGODB_CONNECTION_STRING=mongodb://52.59.253.77
+    - MONGODB_CONNECTION_STRING=mongodb://54.93.147.100
 
 # Do not insert any code under here without making sures it's in publishingtest first
 language: node_js
