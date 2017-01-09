@@ -185,7 +185,7 @@ Connector.prototype._onConnect = function( err, db ) {
  * @returns {Object} {connection: <MongoConnection>, id: <String> }
  */
 Connector.prototype._getParams = function( key ) {
-  var parts = key.split( this._splitChar ),
+  var parts = key.split( this._splitChar, 1 ),
     collectionName,
     id
 
