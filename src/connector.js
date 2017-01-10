@@ -61,7 +61,6 @@ var Connector = function( options ) {
   this._defaultCollection = options.defaultCollection || 'deepstream_docs'
   this._db = null
   this._collections = {}
-  this._splitRegex = new RegExp( this._splitChar )
 
   if( !options.connectionString ) {
     throw new Error( 'Missing setting \'connectionString\'' )
@@ -186,20 +185,18 @@ Connector.prototype._onConnect = function( err, db ) {
  * @returns {Object} {connection: <MongoConnection>, id: <String> }
  */
 Connector.prototype._getParams = function( key ) {
-  var parts = key.split( this._splitRegex ),
+  var index = key.indexOf( this._splitChar ),
     collectionName,
     id
 
-  if( parts.length === 1 ) {
+  if( index === 0 ) {
+    return null // cannot have an empty collection name
+  } else if( index === -1 ) {
     collectionName = this._defaultCollection
     id = key
-  }
-  else if( parts.length === 2 ) {
-    collectionName = parts[ 0 ]
-    id = parts[ 1 ]
-  }
-  else {
-    return null
+  } else {
+    collectionName = key.substring(0, index)
+    id = key.substring(index + 1)
   }
 
   if( !this._collections[ collectionName ] ) {
