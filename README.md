@@ -10,9 +10,8 @@ plugins:
   storage:
     name: mongodb
     options:
-      connectionString: ${MONGODB_CONNECTION_STRING}
-      database: 'someDb'
-      defaultTable: 'someTable'
+      connectionString: ${MONGODB_CONNECTION_STRING}/someDb
+      defaultCollection: 'someTable'
       splitChar: '/'
 ```
 
