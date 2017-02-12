@@ -20,14 +20,14 @@
   },
   "homepage": "http://deepstream.io",
   "dependencies": {
-    "mongodb": "~2.0"
+    "mongodb": "~2.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "coveralls": "^2.11.9",
-    "eslint": "^2.11.1",
-    "eslint-config-airbnb": "^3.1.0",
-    "istanbul": "^0.4.3",
-    "mocha": "^2.5.2"
+    "coveralls": "^2.11.16",
+    "eslint": "^3.15.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0"
   }
 }

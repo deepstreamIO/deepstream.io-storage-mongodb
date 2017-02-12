@@ -2,7 +2,7 @@
 
 echo "Before install - OS is $TRAVIS_OS_NAME"
 
-echo "Updating both homebrew, mongodb and redis-server"
+echo "Installing mongodb on mac"
 if [[ $TRAVIS_OS_NAME = 'osx' ]]; then
     echo "Updating homebrew"
     brew update

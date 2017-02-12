@@ -1,7 +1,7 @@
 env:
   global:
     - CXX=g++-4.8
-    - MONGODB_CONNECTION_STRING=mongodb://54.93.147.100
+    - MONGODB_CONNECTION_STRING=mongodb://127.0.0.1
 
 before_install:
   - bash scripts/before_install.sh
@@ -24,11 +24,11 @@ plugins:
 
 node_js:
   - "stable"
-  - "6.9"
+  - "6.9.5"
 
 matrix:
   include:
-    - node_js: "6.9"
+    - node_js: "6.9.5"
       os: osx
 
 script:
