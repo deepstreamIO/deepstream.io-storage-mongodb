@@ -1,5 +1,8 @@
 environment:
-  MONGODB_CONNECTION_STRING: mongodb://54.93.147.100
+  MONGODB_CONNECTION_STRING: mongodb://127.0.0.1
+
+services:
+  - mongodb
 
 # Do not insert any code under here without making sures it's in publishingtest first
 os:
@@ -9,7 +12,7 @@ platform:
   - x64
 
 install:
-  - ps: Install-Product node 4.4.5
+  - ps: Install-Product node 6.9
   - npm install
 
 test_script:

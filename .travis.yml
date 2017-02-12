@@ -3,6 +3,15 @@ env:
     - CXX=g++-4.8
     - MONGODB_CONNECTION_STRING=mongodb://54.93.147.100
 
+before_install:
+  - bash scripts/before_install.sh
+
+services:
+  - mongodb
+
+before_script:
+  - sleep 15
+
 # Do not insert any code under here without making sures it's in publishingtest first
 language: node_js
 
@@ -15,11 +24,11 @@ plugins:
 
 node_js:
   - "stable"
-  - "4.4.5"
+  - "6.9"
 
 matrix:
   include:
-    - node_js: "4.4.5"
+    - node_js: "6.9"
       os: osx
 
 script:
