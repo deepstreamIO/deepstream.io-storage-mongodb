@@ -4,6 +4,7 @@ const pckg = require( '../package.json' )
 const mongoClient = require('mongodb').MongoClient
 const ObjectID = require('mongodb').ObjectID
 const dataTransform = require( './transform-data' )
+const _ = require('underscore')
 
 /**
  * Connects deepstream to MongoDb.
@@ -129,6 +130,33 @@ Connector.prototype.get = function( key, callback ) {
 }
 
 /**
+ * Performs find query on storage
+ *
+ * @param {String}   collectionName
+ * @param {Object}   query
+ * @param {Function} callback Will be called with null and the stored object
+ *                            for successful operations or with an error message string
+ *
+ * @private
+ * @returns {void}
+ */
+Connector.prototype.find = function( collectionName, query, callback ) {
+  const collection = this._getCollection( collectionName )
+  collection.find( query ).toArray( ( err, docs ) => {
+    if ( err === null ) {
+      const results = _.map( docs, ( doc ) => {
+        delete doc._id
+        delete doc.__d
+        return doc
+      })
+      callback( null, results )
+    } else {
+      callback( err, null )
+    }
+  })
+}
+
+/**
  * Deletes an entry from the cache.
  *
  * @param   {String}   key
@@ -199,12 +227,25 @@ Connector.prototype._getParams = function( key ) {
     id = key.substring(index + 1)
   }
 
+  return { collection: this._getCollection( collectionName ), id: id }
+}
+
+/**
+ * Returns a MongoConnection object given its name.
+ * Creates the collection if it doesn't exist yet.
+ *
+ * @param {String} collectionName
+ *
+ * @private
+ * @returns {Object} <MongoConnection>
+ */
+Connector.prototype._getCollection = function( collectionName ) {
   if( !this._collections[ collectionName ] ) {
     this._collections[ collectionName ] = this._db.collection( collectionName )
     this._collections[ collectionName ].ensureIndex({ ds_key: 1 })
   }
 
-  return { collection: this._collections[ collectionName ], id: id }
+  return this._collections[ collectionName ]
 }
 
 module.exports = Connector
