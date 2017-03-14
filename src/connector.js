@@ -170,7 +170,9 @@ Connector.prototype.find = function( collectionName, query, callback ) {
 Connector.prototype.findOne = function( collectionName, query, callback ) {
   const collection = this._getCollection( collectionName )
   collection.findOne( query, ( err, doc ) => {
-    if ( err === null ) {
+    if ( doc === null ) {
+      callback( null, null)
+    } else if ( err === null ) {
       delete doc._id
       delete doc.__d
       callback( null, doc )
@@ -178,6 +180,24 @@ Connector.prototype.findOne = function( collectionName, query, callback ) {
       callback( err, null )
     }
   })
+}
+
+/**
+ * Performs update query on storage
+ *
+ * @param {String}   collectionName
+ * @param {Object}   criteria Conditions for the documents to update
+ * @param {Object}   updateParams fields in the document to update
+ * @param {Object}   options mongo defined options for the update
+ * @param {Function} callback Will be called with null and the stored object
+ *                            for successful operations or with an error message string
+ *
+ * @private
+ * @returns {void}
+ */
+Connector.prototype.update = function( collectionName, criteria, updateParams, options, callback ) {
+  const collection = this._getCollection( collectionName )
+  collection.update( criteria, updateParams, options, callback)
 }
 
 /**
