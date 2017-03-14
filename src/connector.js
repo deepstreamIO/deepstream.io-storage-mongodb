@@ -157,6 +157,30 @@ Connector.prototype.find = function( collectionName, query, callback ) {
 }
 
 /**
+ * Performs find query on storage
+ *
+ * @param {String}   collectionName
+ * @param {Object}   query
+ * @param {Function} callback Will be called with null and the stored object
+ *                            for successful operations or with an error message string
+ *
+ * @private
+ * @returns {void}
+ */
+Connector.prototype.findOne = function( collectionName, query, callback ) {
+  const collection = this._getCollection( collectionName )
+  collection.findOne( query, ( err, doc ) => {
+    if ( err === null ) {
+      delete doc._id
+      delete doc.__d
+      callback( null, doc )
+    } else {
+      callback( err, null )
+    }
+  })
+}
+
+/**
  * Deletes an entry from the cache.
  *
  * @param   {String}   key
