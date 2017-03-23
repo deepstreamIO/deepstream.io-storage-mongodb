@@ -32,6 +32,18 @@ describe( 'Transforms outgoing data', () => {
       "__dsList": [ "John", "Smith" ]
     } )
   } )
+
+  it( 'Transforms null', () => {
+    const result = TransformData.transformValueForStorage( {
+      _d: null,
+      _v: 12
+    } )
+    expect( result ).to.deep.equal( {
+      "__ds": {
+        "_v": 12
+      },
+    } )
+  } )
 } )
 
 describe( 'Transforms incoming data', () => {
