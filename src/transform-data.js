@@ -19,7 +19,7 @@ module.exports.transformValueForStorage = function ( value ) {
   var data = value._d
   delete value._d
 
-  if( data instanceof Array) {
+  if( data instanceof Array ) {
     data = {
       __dsList: data,
       __ds: value
