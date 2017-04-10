@@ -1,3 +1,9 @@
+## [1.1.0] 2017-04-10
+
+### Features
+
+- `find` and `findOne` queries implemented by [kombuchafox](https://github.com/kombuchafox)
+
 ## [1.0.2] 2016-07-25
 
 ### Bug Fix
