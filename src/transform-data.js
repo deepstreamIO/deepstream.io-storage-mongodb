@@ -24,6 +24,10 @@ module.exports.transformValueForStorage = function ( value ) {
       __dsList: data,
       __ds: value
     }
+  } else if (data === null){
+    data = {
+      __ds: value
+    }  
   } else {
     data.__ds = value
   }
