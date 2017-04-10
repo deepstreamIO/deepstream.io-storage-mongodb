@@ -1,5 +1,8 @@
 environment:
-  MONGODB_CONNECTION_STRING: mongodb://54.93.147.100
+  MONGODB_CONNECTION_STRING: mongodb://127.0.0.1
+
+services:
+  - mongodb
 
 # Do not insert any code under here without making sures it's in publishingtest first
 os:
@@ -9,7 +12,7 @@ platform:
   - x64
 
 install:
-  - ps: Install-Product node 4.4.5
+  - ps: Install-Product node 6.9.5
   - npm install
 
 test_script:
@@ -29,9 +32,9 @@ artifacts:
 deploy:
   - provider: S3
     access_key_id:
-      secure: cq7lgQP04314hwXwM2l0yiUKRcOkwHeKkDHFULrThxE=
+      secure: zIKwOEzh56IXWlpXWMDwjC9Dqz58ZifBBQUZ43wDQWs=
     secret_access_key:
-      secure: AMUWZVZ4o7lS6f5ogqxTTCqDUR/TYEmPaVXzb7yRRyFUTF/zQFnZHYk1G/j7ie8/
+      secure: br3dL6aFlkMBeqdXSeXfKeZmjyZl1OGD9STaUiGXsWic50DEqedx24C0LipYJqYI
     bucket: ds-server-artifacts
     folder: $(APPVEYOR_REPO_NAME)
     on:

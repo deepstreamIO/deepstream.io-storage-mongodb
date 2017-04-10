@@ -32,15 +32,16 @@ describe( 'the message connector has the correct structure', () => {
 
   it( 'parses keys', () => {
     var params = cacheConnector._getParams( 'user/a' )
-    expect( params.collection.collectionName ).to.equal( 'user' )
+    expect( params.collection.s.name ).to.equal( 'user' )
     expect( params.id ).to.equal( 'a' )
 
     params = cacheConnector._getParams( 'bla' )
-    expect( params.collection.collectionName ).to.equal( 'deepstream_docs' )
+    expect( params.collection.s.name ).to.equal( 'deepstream_docs' )
     expect( params.id ).to.equal( 'bla' )
 
     params = cacheConnector._getParams( 'a/b/c' )
-    expect( params ).to.equal( null )
+    expect( params.collection.s.name ).to.equal( 'a' )
+    expect( params.id ).to.equal( 'b/c' )
   })
 
   it( 'refuses updates with invalid keys', () => {

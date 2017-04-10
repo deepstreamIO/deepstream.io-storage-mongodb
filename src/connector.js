@@ -4,6 +4,7 @@ const pckg = require( '../package.json' )
 const mongoClient = require('mongodb').MongoClient
 const ObjectID = require('mongodb').ObjectID
 const dataTransform = require( './transform-data' )
+const _ = require('underscore')
 
 /**
  * Connects deepstream to MongoDb.
@@ -129,6 +130,77 @@ Connector.prototype.get = function( key, callback ) {
 }
 
 /**
+ * Performs find query on storage
+ *
+ * @param {String}   collectionName
+ * @param {Object}   query
+ * @param {Function} callback Will be called with null and the stored object
+ *                            for successful operations or with an error message string
+ *
+ * @private
+ * @returns {void}
+ */
+Connector.prototype.find = function( collectionName, query, callback ) {
+  const collection = this._getCollection( collectionName )
+  collection.find( query ).toArray( ( err, docs ) => {
+    if ( err === null ) {
+      const results = _.map( docs, ( doc ) => {
+        delete doc._id
+        delete doc.__d
+        return doc
+      })
+      callback( null, results )
+    } else {
+      callback( err, null )
+    }
+  })
+}
+
+/**
+ * Performs find query on storage
+ *
+ * @param {String}   collectionName
+ * @param {Object}   query
+ * @param {Function} callback Will be called with null and the stored object
+ *                            for successful operations or with an error message string
+ *
+ * @private
+ * @returns {void}
+ */
+Connector.prototype.findOne = function( collectionName, query, callback ) {
+  const collection = this._getCollection( collectionName )
+  collection.findOne( query, ( err, doc ) => {
+    if ( doc === null ) {
+      callback( null, null)
+    } else if ( err === null ) {
+      delete doc._id
+      delete doc.__d
+      callback( null, doc )
+    } else {
+      callback( err, null )
+    }
+  })
+}
+
+/**
+ * Performs update query on storage
+ *
+ * @param {String}   collectionName
+ * @param {Object}   criteria Conditions for the documents to update
+ * @param {Object}   updateParams fields in the document to update
+ * @param {Object}   options mongo defined options for the update
+ * @param {Function} callback Will be called with null and the stored object
+ *                            for successful operations or with an error message string
+ *
+ * @private
+ * @returns {void}
+ */
+Connector.prototype.update = function( collectionName, criteria, updateParams, options, callback ) {
+  const collection = this._getCollection( collectionName )
+  collection.update( criteria, updateParams, options, callback)
+}
+
+/**
  * Deletes an entry from the cache.
  *
  * @param   {String}   key
@@ -185,28 +257,39 @@ Connector.prototype._onConnect = function( err, db ) {
  * @returns {Object} {connection: <MongoConnection>, id: <String> }
  */
 Connector.prototype._getParams = function( key ) {
-  var parts = key.split( this._splitChar, 1 ),
+  var index = key.indexOf( this._splitChar ),
     collectionName,
     id
 
-  if( parts.length === 1 ) {
+  if( index === 0 ) {
+    return null // cannot have an empty collection name
+  } else if( index === -1 ) {
     collectionName = this._defaultCollection
     id = key
-  }
-  else if( parts.length === 2 ) {
-    collectionName = parts[ 0 ]
-    id = parts[ 1 ]
-  }
-  else {
-    return null
+  } else {
+    collectionName = key.substring(0, index)
+    id = key.substring(index + 1)
   }
 
+  return { collection: this._getCollection( collectionName ), id: id }
+}
+
+/**
+ * Returns a MongoConnection object given its name.
+ * Creates the collection if it doesn't exist yet.
+ *
+ * @param {String} collectionName
+ *
+ * @private
+ * @returns {Object} <MongoConnection>
+ */
+Connector.prototype._getCollection = function( collectionName ) {
   if( !this._collections[ collectionName ] ) {
     this._collections[ collectionName ] = this._db.collection( collectionName )
     this._collections[ collectionName ].ensureIndex({ ds_key: 1 })
   }
 
-  return { collection: this._collections[ collectionName ], id: id }
+  return this._collections[ collectionName ]
 }
 
 module.exports = Connector
