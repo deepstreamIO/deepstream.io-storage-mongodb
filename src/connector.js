@@ -257,7 +257,7 @@ Connector.prototype._onConnect = function( err, db ) {
  * @returns {Object} {connection: <MongoConnection>, id: <String> }
  */
 Connector.prototype._getParams = function( key ) {
-  var index = key.indexOf( this._splitChar ),
+  var index = key.lastIndexOf( this._splitChar ),
     collectionName,
     id
 
