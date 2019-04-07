@@ -1,8 +1,8 @@
 const events = require( 'events' )
 const util = require( 'util' )
 const pckg = require( '../package.json' )
-const mongoClient = require('mongodb').MongoClient
-const ObjectID = require('mongodb').ObjectID
+const {MongoClient} = require('mongodb')
+const {ObjectID} = require('mongodb')
 const dataTransform = require( './transform-data' )
 const _ = require('underscore')
 
@@ -67,7 +67,8 @@ var Connector = function( options ) {
     throw new Error( 'Missing setting \'connectionString\'' )
   }
 
-  mongoClient.connect( options.connectionString, this._onConnect.bind( this ) )
+  this._client = new MongoClient(options.connectionString);
+  this._client .connect(this._onConnect.bind( this ) )
 }
 
 util.inherits( Connector, events.EventEmitter )
@@ -92,7 +93,7 @@ Connector.prototype.set = function( key, value, callback ) {
 
   value = dataTransform.transformValueForStorage( value )
   value.ds_key = params.id
-  params.collection.updateOne({ ds_key: params.id }, value, { upsert: true }, callback )
+  params.collection.updateOne({ ds_key: params.id }, { $set: value }, { upsert: true }, callback )
 }
 
 /**
@@ -225,18 +226,17 @@ Connector.prototype.delete = function( key, callback ) {
  * Callback for established (or rejected) connections
  *
  * @param {String} error
- * @param {MongoClient} db
  *
  * @private
  * @returns {void}
  */
-Connector.prototype._onConnect = function( err, db ) {
+Connector.prototype._onConnect = function( err ) {
   if( err ) {
     this.emit( 'error', err )
     return
   }
 
-  this._db = db
+  this._db = this._client.db()
   this.isReady = true
   this.emit( 'ready' )
 }
@@ -286,7 +286,7 @@ Connector.prototype._getParams = function( key ) {
 Connector.prototype._getCollection = function( collectionName ) {
   if( !this._collections[ collectionName ] ) {
     this._collections[ collectionName ] = this._db.collection( collectionName )
-    this._collections[ collectionName ].ensureIndex({ ds_key: 1 })
+    this._collections[ collectionName ].createIndexes({ ds_key: 1 })
   }
 
   return this._collections[ collectionName ]
