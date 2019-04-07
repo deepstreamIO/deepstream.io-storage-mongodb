@@ -1,3 +1,9 @@
+## [1.1.1] 2019-04-07
+
+### Misc
+
+- Updating dependencies, support latest mongo server
+
 ## [1.1.0] 2017-04-10
 
 ### Features
