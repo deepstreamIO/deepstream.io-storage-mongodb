@@ -1,4 +1,4 @@
-# deepstream.io-storage-mongodb [![npm version](https://badge.fury.io/js/deepstream.io-storage-mongodb.svg)](http://badge.fury.io/js/deepstream.io-storage-mongodb)
+# deepstream.io-storage-mongodb [![npm version](https://badge.fury.io/js/deepstream.io-storage-mongodb.svg)](http://badge.fury.io/js/deepstream.io-storage-mongodb) [![Greenkeeper badge](https://badges.greenkeeper.io/deepstreamIO/deepstream.io-storage-mongodb.svg)](https://greenkeeper.io/)
 
 [deepstream](http://deepstream.io) storage connector for [mongodb](https://www.mongodb.org/)
 
