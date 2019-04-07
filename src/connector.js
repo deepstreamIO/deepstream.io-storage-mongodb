@@ -1,10 +1,10 @@
-const events = require( 'events' )
-const util = require( 'util' )
-const pckg = require( '../package.json' )
-const {MongoClient} = require('mongodb')
-const {ObjectID} = require('mongodb')
-const dataTransform = require( './transform-data' )
-const _ = require('underscore')
+const events = require( "events" );
+const util = require( "util" );
+const pckg = require( "../package.json" );
+const {MongoClient} = require("mongodb");
+const {ObjectID} = require("mongodb");
+const dataTransform = require( "./transform-data" );
+const _ = require("underscore");
 
 /**
  * Connects deepstream to MongoDb.
@@ -55,23 +55,23 @@ const _ = require('underscore')
  * @constructor
  */
 var Connector = function( options ) {
-  this.isReady = false
-  this.name = pckg.name
-  this.version = pckg.version
-  this._splitChar = options.splitChar || null
-  this._defaultCollection = options.defaultCollection || 'deepstream_docs'
-  this._db = null
-  this._collections = {}
+  this.isReady = false;
+  this.name = pckg.name;
+  this.version = pckg.version;
+  this._splitChar = options.splitChar || null;
+  this._defaultCollection = options.defaultCollection || "deepstream_docs";
+  this._db = null;
+  this._collections = {};
 
-  if( !options.connectionString ) {
-    throw new Error( 'Missing setting \'connectionString\'' )
+  if ( !options.connectionString ) {
+    throw new Error( "Missing setting 'connectionString'" );
   }
 
   this._client = new MongoClient(options.connectionString);
-  this._client .connect(this._onConnect.bind( this ) )
-}
+  this._client .connect(this._onConnect.bind( this ) );
+};
 
-util.inherits( Connector, events.EventEmitter )
+util.inherits( Connector, events.EventEmitter );
 
 /**
  * Writes a value to the cache.
@@ -84,17 +84,17 @@ util.inherits( Connector, events.EventEmitter )
  * @returns {void}
  */
 Connector.prototype.set = function( key, value, callback ) {
-  var params = this._getParams( key )
+  var params = this._getParams( key );
 
-  if( params === null ) {
-    callback( 'Invalid key ' + key )
-    return
+  if ( params === null ) {
+    callback( "Invalid key " + key );
+    return;
   }
 
-  value = dataTransform.transformValueForStorage( value )
-  value.ds_key = params.id
-  params.collection.updateOne({ ds_key: params.id }, { $set: value }, { upsert: true }, callback )
-}
+  value = dataTransform.transformValueForStorage( value );
+  value.ds_key = params.id;
+  params.collection.updateOne({ ds_key: params.id }, { $set: value }, { upsert: true }, callback );
+};
 
 /**
  * Retrieves a value from the cache
@@ -107,28 +107,28 @@ Connector.prototype.set = function( key, value, callback ) {
  * @returns {void}
  */
 Connector.prototype.get = function( key, callback ) {
-  var params = this._getParams( key )
+  var params = this._getParams( key );
 
-  if( params === null ) {
-    callback( 'Invalid key ' + key )
-    return
+  if ( params === null ) {
+    callback( "Invalid key " + key );
+    return;
   }
 
   params.collection.findOne({ ds_key: params.id }, ( err, doc ) => {
-    if( err ) {
-      callback( err )
+    if ( err ) {
+      callback( err );
     } else {
-      if( doc === null ) {
-        callback( null, null )
+      if ( doc === null ) {
+        callback( null, null );
       } else {
-        delete doc._id
-        delete doc.ds_key
-        doc = dataTransform.transformValueFromStorage( doc )
-        callback( null, doc )
+        delete doc._id;
+        delete doc.ds_key;
+        doc = dataTransform.transformValueFromStorage( doc );
+        callback( null, doc );
       }
     }
-  })
-}
+  });
+};
 
 /**
  * Performs find query on storage
@@ -142,20 +142,20 @@ Connector.prototype.get = function( key, callback ) {
  * @returns {void}
  */
 Connector.prototype.find = function( collectionName, query, callback ) {
-  const collection = this._getCollection( collectionName )
+  const collection = this._getCollection( collectionName );
   collection.find( query ).toArray( ( err, docs ) => {
     if ( err === null ) {
       const results = _.map( docs, ( doc ) => {
-        delete doc._id
-        delete doc.__d
-        return doc
-      })
-      callback( null, results )
+        delete doc._id;
+        delete doc.__d;
+        return doc;
+      });
+      callback( null, results );
     } else {
-      callback( err, null )
+      callback( err, null );
     }
-  })
-}
+  });
+};
 
 /**
  * Performs find query on storage
@@ -169,19 +169,19 @@ Connector.prototype.find = function( collectionName, query, callback ) {
  * @returns {void}
  */
 Connector.prototype.findOne = function( collectionName, query, callback ) {
-  const collection = this._getCollection( collectionName )
+  const collection = this._getCollection( collectionName );
   collection.findOne( query, ( err, doc ) => {
     if ( doc === null ) {
-      callback( null, null)
+      callback( null, null);
     } else if ( err === null ) {
-      delete doc._id
-      delete doc.__d
-      callback( null, doc )
+      delete doc._id;
+      delete doc.__d;
+      callback( null, doc );
     } else {
-      callback( err, null )
+      callback( err, null );
     }
-  })
-}
+  });
+};
 
 /**
  * Performs update query on storage
@@ -197,9 +197,9 @@ Connector.prototype.findOne = function( collectionName, query, callback ) {
  * @returns {void}
  */
 Connector.prototype.update = function( collectionName, criteria, updateParams, options, callback ) {
-  const collection = this._getCollection( collectionName )
-  collection.update( criteria, updateParams, options, callback)
-}
+  const collection = this._getCollection( collectionName );
+  collection.update( criteria, updateParams, options, callback);
+};
 
 /**
  * Deletes an entry from the cache.
@@ -212,15 +212,15 @@ Connector.prototype.update = function( collectionName, criteria, updateParams, o
  * @returns {void}
  */
 Connector.prototype.delete = function( key, callback ) {
-  var params = this._getParams( key )
+  var params = this._getParams( key );
 
-  if( params === null ) {
-    callback( 'Invalid key ' + key )
-    return
+  if ( params === null ) {
+    callback( "Invalid key " + key );
+    return;
   }
 
-  params.collection.deleteOne({ ds_key: params.id }, callback )
-}
+  params.collection.deleteOne({ ds_key: params.id }, callback );
+};
 
 /**
  * Callback for established (or rejected) connections
@@ -231,15 +231,15 @@ Connector.prototype.delete = function( key, callback ) {
  * @returns {void}
  */
 Connector.prototype._onConnect = function( err ) {
-  if( err ) {
-    this.emit( 'error', err )
-    return
+  if ( err ) {
+    this.emit( "error", err );
+    return;
   }
 
-  this._db = this._client.db()
-  this.isReady = true
-  this.emit( 'ready' )
-}
+  this._db = this._client.db();
+  this.isReady = true;
+  this.emit( "ready" );
+};
 
 /**
  * Determines the document id and the collection
@@ -259,20 +259,20 @@ Connector.prototype._onConnect = function( err ) {
 Connector.prototype._getParams = function( key ) {
   var index = key.indexOf( this._splitChar ),
     collectionName,
-    id
+    id;
 
-  if( index === 0 ) {
-    return null // cannot have an empty collection name
-  } else if( index === -1 ) {
-    collectionName = this._defaultCollection
-    id = key
+  if ( index === 0 ) {
+    return null; // cannot have an empty collection name
+  } else if ( index === -1 ) {
+    collectionName = this._defaultCollection;
+    id = key;
   } else {
-    collectionName = key.substring(0, index)
-    id = key.substring(index + 1)
+    collectionName = key.substring(0, index);
+    id = key.substring(index + 1);
   }
 
-  return { collection: this._getCollection( collectionName ), id: id }
-}
+  return { collection: this._getCollection( collectionName ), id: id };
+};
 
 /**
  * Returns a MongoConnection object given its name.
@@ -284,12 +284,12 @@ Connector.prototype._getParams = function( key ) {
  * @returns {Object} <MongoConnection>
  */
 Connector.prototype._getCollection = function( collectionName ) {
-  if( !this._collections[ collectionName ] ) {
-    this._collections[ collectionName ] = this._db.collection( collectionName )
-    this._collections[ collectionName ].createIndexes({ ds_key: 1 })
+  if ( !this._collections[ collectionName ] ) {
+    this._collections[ collectionName ] = this._db.collection( collectionName );
+    this._collections[ collectionName ].createIndexes({ ds_key: 1 });
   }
 
-  return this._collections[ collectionName ]
-}
+  return this._collections[ collectionName ];
+};
 
-module.exports = Connector
+module.exports = Connector;
