@@ -3,7 +3,7 @@ const expect = require('chai').expect
 const CacheConnector = require( '../src/connector' )
 const EventEmitter = require( 'events' ).EventEmitter
 const settings = {
-  connectionString: process.env.MONGODB_CONNECTION_STRING,
+  connectionString: process.env.MONGODB_CONNECTION_STRING || 'mongodb://127.0.0.1',
   splitChar: '/'
 }
 const MESSAGE_TIME = 20

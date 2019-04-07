@@ -23,13 +23,14 @@ plugins:
     - g++-4.8
 
 node_js:
-  - "stable"
-  - "6.9.5"
+  - "10"
 
 matrix:
   include:
-    - node_js: "6.9.5"
+    - node_js: "10"
       os: osx
+    - node_js: "10"
+      os: linux
 
 script:
   - npm run test
@@ -38,20 +39,9 @@ script:
   - ./package.sh
 
 deploy:
-  - provider: s3
-    access_key_id:
-      secure: "D54L1Bq6cz6kWxy8LFkoprmWPFicHPA9ZKg972f3cEfkWOQxJ/iZFzG/jdj7igb9bLMtZwYZ7nq9cT6SoRrsoFymC5hKXRnguqjm1yRaNs3FE52SNkDkUbSihieBWryNUgbPVFdqNeCCccqqlTnC6+/31nJ/snzgxwvTSUQm/NI="
-    secret_access_key:
-      secure: "ChDtK53TwgLNyPs4//Ozhk7sUqbG3M9z/wxFn9Tsq0DVEZ35LzUUHhd+jFK7eFSF/w44EtMXQULlk2ksVdwuaUwGsbM0uR4ymHvxa8MaDet3T/1OiIyAaJaG4fwDLWtFRmOkayVT/fjjiwUVM5L4YBWNAMQpQzNVsXq8wLtI0cY="
-    bucket: ds-server-artifacts
-    skip_cleanup: true
-    acl: public_read
-    local_dir: build
-    upload-dir: $TRAVIS_REPO_SLUG
   - provider: releases
     skip_cleanup: true
-    api_key:
-      secure: "R6SZFsJIBLQl76uzldbQI12x+EYZKseXNVNI7rI43N+6KJLxWTsDH7tuiTImrdMsJmpLhCACHHzA0ZLztFxVpEKduNjdMZGsTEV0JB8zOGbsOfvaOss/l3IsWlhYqSlHe8jnHjZnC+nBEwCdivVamx+zLBw8qVVaG1Lba0Z8DzU="
+    api_key: ${GITHUB_TOKEN}
     file_glob: true
     file:
       - "build/*.tar.gz"

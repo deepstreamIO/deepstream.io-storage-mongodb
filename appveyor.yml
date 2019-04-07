@@ -6,13 +6,13 @@ services:
 
 # Do not insert any code under here without making sures it's in publishingtest first
 os:
-  - Visual Studio 2015
+  - Visual Studio 2017
 
 platform:
   - x64
 
 install:
-  - ps: Install-Product node 6.9.5
+  - ps: Install-Product node 610
   - npm install
 
 test_script:
@@ -30,16 +30,6 @@ artifacts:
   - path: '**\*.zip'
 
 deploy:
-  - provider: S3
-    access_key_id:
-      secure: zIKwOEzh56IXWlpXWMDwjC9Dqz58ZifBBQUZ43wDQWs=
-    secret_access_key:
-      secure: br3dL6aFlkMBeqdXSeXfKeZmjyZl1OGD9STaUiGXsWic50DEqedx24C0LipYJqYI
-    bucket: ds-server-artifacts
-    folder: $(APPVEYOR_REPO_NAME)
-    on:
-      appveyor_repo_tag: false
-
   - provider: GitHub
     release: $(APPVEYOR_REPO_TAG_NAME)
     description: 'Release description'
