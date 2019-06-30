@@ -286,7 +286,7 @@ Connector.prototype._getParams = function( key ) {
 Connector.prototype._getCollection = function( collectionName ) {
   if ( !this._collections[ collectionName ] ) {
     this._collections[ collectionName ] = this._db.collection( collectionName );
-    this._collections[ collectionName ].createIndexes({ ds_key: 1 });
+    this._collections[ collectionName ].createIndex({ ds_key: 1 });
   }
 
   return this._collections[ collectionName ];
