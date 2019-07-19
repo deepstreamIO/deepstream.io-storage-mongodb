@@ -58,8 +58,7 @@ var Connector = function( options, services ) {
   this.services = services;
   this.isReady = false;
   this.options = options;
-  this.name = pckg.name;
-  this.version = pckg.version;
+  this.description = `${pckg.name} ${pckg.version}`;
   this._splitChar = options.splitChar || null;
   this._defaultCollection = options.defaultCollection || "deepstream_docs";
   this._db = null;
@@ -136,7 +135,7 @@ Connector.prototype.get = function( key, callback ) {
       callback( err );
     } else {
       if ( doc === null ) {
-        callback( null, null );
+        callback( null, -1, null );
       } else {
         delete doc._id;
         delete doc.ds_key;
@@ -145,77 +144,6 @@ Connector.prototype.get = function( key, callback ) {
       }
     }
   });
-};
-
-/**
- * Performs find query on storage
- *
- * @param {String}   collectionName
- * @param {Object}   query
- * @param {Function} callback Will be called with null and the stored object
- *                            for successful operations or with an error message string
- *
- * @private
- * @returns {void}
- */
-Connector.prototype.find = function( collectionName, query, callback ) {
-  const collection = this._getCollection( collectionName );
-  collection.find( query ).toArray( ( err, docs ) => {
-    if ( err === null ) {
-      const results = _.map( docs, ( doc ) => {
-        delete doc._id;
-        delete doc.__d;
-        return doc;
-      });
-      callback( null, results );
-    } else {
-      callback( err, null );
-    }
-  });
-};
-
-/**
- * Performs find query on storage
- *
- * @param {String}   collectionName
- * @param {Object}   query
- * @param {Function} callback Will be called with null and the stored object
- *                            for successful operations or with an error message string
- *
- * @private
- * @returns {void}
- */
-Connector.prototype.findOne = function( collectionName, query, callback ) {
-  const collection = this._getCollection( collectionName );
-  collection.findOne( query, ( err, doc ) => {
-    if ( doc === null ) {
-      callback( null, null);
-    } else if ( err === null ) {
-      delete doc._id;
-      delete doc.__d;
-      callback( null, doc );
-    } else {
-      callback( err, null );
-    }
-  });
-};
-
-/**
- * Performs update query on storage
- *
- * @param {String}   collectionName
- * @param {Object}   criteria Conditions for the documents to update
- * @param {Object}   updateParams fields in the document to update
- * @param {Object}   options mongo defined options for the update
- * @param {Function} callback Will be called with null and the stored object
- *                            for successful operations or with an error message string
- *
- * @private
- * @returns {void}
- */
-Connector.prototype.update = function( collectionName, criteria, updateParams, options, callback ) {
-  const collection = this._getCollection( collectionName );
-  collection.update( criteria, updateParams, options, callback);
 };
 
 /**

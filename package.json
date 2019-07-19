@@ -1,13 +1,14 @@
 {
   "name": "@deepstream/storage-mongodb",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A template that can be forked to create new cache and storage connectors for deepstream.io",
   "main": "src/connector.js",
   "scripts": {
     "test": "mocha --exit",
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha",
     "lint": "eslint \"src/**/*.js\" \"test/**/*.js\"",
-    "ci": "npm run coverage && npm run lint"
+    "ci": "npm run coverage && npm run lint",
+    "docker": "docker run -p 27017:27017 mongo"
   },
   "repository": {
     "type": "git",

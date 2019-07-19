@@ -10,12 +10,10 @@ const MESSAGE_TIME = 20;
 
 describe( "the message connector has the correct structure", () => {
   var cacheConnector;
-  it( "throws an error if required connection parameters are missing", () => {
-    expect(() => { new CacheConnector( "gibberish" ); }).to.throw();
-  });
 
   it( "creates the cacheConnector", async () => {
     cacheConnector = new CacheConnector( settings );
+    cacheConnector.init()
     await cacheConnector.whenReady()
   });
 
@@ -49,8 +47,9 @@ describe( "the message connector has the correct structure", () => {
   });
 
   it( "retrieves a non existing value", ( done ) => {
-    cacheConnector.get( "someValue", ( error, value ) => {
+    cacheConnector.get( "someValue", ( error, version, value ) => {
       expect( error ).to.equal( null );
+      expect( version ).to.equal( -1 );
       expect( value ).to.equal( null );
       done();
     });
@@ -80,8 +79,9 @@ describe( "the message connector has the correct structure", () => {
   });
 
   it( "Can't retrieve a deleted value", ( done ) => {
-    cacheConnector.get( "someValue", ( error, value ) => {
+    cacheConnector.get( "someValue", ( error, version, value ) => {
       expect( error ).to.equal( null );
+      expect( version ).to.equal( -1 );
       expect( value ).to.equal( null );
       done();
     });
