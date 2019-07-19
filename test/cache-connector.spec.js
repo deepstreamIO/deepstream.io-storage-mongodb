@@ -14,11 +14,9 @@ describe( "the message connector has the correct structure", () => {
     expect(() => { new CacheConnector( "gibberish" ); }).to.throw();
   });
 
-  it( "creates the cacheConnector", ( done ) => {
+  it( "creates the cacheConnector", async () => {
     cacheConnector = new CacheConnector( settings );
-    expect( cacheConnector.isReady ).to.equal( false );
-    cacheConnector.on( "error", ( err ) => { throw err; });
-    cacheConnector.on( "ready", done );
+    await cacheConnector.whenReady()
   });
 
   it( "implements the cache/storage connector interface", () => {
@@ -45,7 +43,7 @@ describe( "the message connector has the correct structure", () => {
   });
 
   it( "refuses updates with invalid keys", () => {
-    cacheConnector.set( "/a/b/c", {}, ( err ) => {
+    cacheConnector.set( "/a/b/c", -1, {}, ( err ) => {
       expect( err ).to.equal( "Invalid key /a/b/c" );
     });
   });
@@ -59,16 +57,17 @@ describe( "the message connector has the correct structure", () => {
   });
 
   it( "sets a value", ( done ) => {
-    cacheConnector.set( "someValue", { _d: { v: 10 }, firstname: "Wolfram" }, ( error ) => {
+    cacheConnector.set( "someValue", 10, { firstname: "Wolfram" }, ( error ) => {
       expect( error ).to.equal( null );
       done();
     });
   });
 
   it( "retrieves an existing value", ( done ) => {
-    cacheConnector.get( "someValue", ( error, value ) => {
+    cacheConnector.get( "someValue", ( error, version, value ) => {
       expect( error ).to.equal( null );
-      expect( value ).to.deep.equal( { _d: { v: 10 }, firstname: "Wolfram" } );
+      expect( version ).to.equal( 10 );
+      expect( value ).to.deep.equal( { firstname: "Wolfram" } );
       done();
     });
   });

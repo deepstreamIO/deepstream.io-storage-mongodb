@@ -54,8 +54,10 @@ const _ = require("underscore");
  *
  * @constructor
  */
-var Connector = function( options ) {
+var Connector = function( options, services ) {
+  this.services = services;
   this.isReady = false;
+  this.options = options;
   this.name = pckg.name;
   this.version = pckg.version;
   this._splitChar = options.splitChar || null;
@@ -63,15 +65,28 @@ var Connector = function( options ) {
   this._db = null;
   this._collections = {};
 
-  if ( !options.connectionString ) {
-    throw new Error( "Missing setting 'connectionString'" );
-  }
-
-  this._client = new MongoClient(options.connectionString);
-  this._client .connect(this._onConnect.bind( this ) );
+  this.on('error', (error) => this.services.logger.fatal(error))
 };
 
 util.inherits( Connector, events.EventEmitter );
+
+Connector.prototype.init = function () {
+  if ( !this.options.connectionString ) {
+    this.services.logger.fatal( "Missing setting 'connectionString'" );
+  }
+
+  this._client = new MongoClient(this.options.connectionString);
+  this._client.connect(this._onConnect.bind( this ));
+}
+
+Connector.prototype.whenReady = async function () {
+  if (!this.isReady) {
+    return new Promise(resolve => this.once('ready', resolve))
+  }
+}
+
+Connector.prototype.close = async function () {
+}
 
 /**
  * Writes a value to the cache.
@@ -83,7 +98,9 @@ util.inherits( Connector, events.EventEmitter );
  * @private
  * @returns {void}
  */
-Connector.prototype.set = function( key, value, callback ) {
+Connector.prototype.set = function( key, version, value, callback ) {
+  value = { _v: version, _d: value }
+
   var params = this._getParams( key );
 
   if ( params === null ) {
@@ -124,7 +141,7 @@ Connector.prototype.get = function( key, callback ) {
         delete doc._id;
         delete doc.ds_key;
         doc = dataTransform.transformValueFromStorage( doc );
-        callback( null, doc );
+        callback( null, doc._v, doc._d);
       }
     }
   });

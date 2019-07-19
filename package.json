@@ -1,6 +1,6 @@
 {
-  "name": "deepstream.io-storage-mongodb",
-  "version": "1.1.1",
+  "name": "@deepstream/storage-mongodb",
+  "version": "2.0.0",
   "description": "A template that can be forked to create new cache and storage connectors for deepstream.io",
   "main": "src/connector.js",
   "scripts": {
