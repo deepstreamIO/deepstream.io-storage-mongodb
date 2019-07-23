@@ -74,7 +74,7 @@ Connector.prototype.init = function () {
     this.services.logger.fatal( "Missing setting 'connectionString'" );
   }
 
-  this._client = new MongoClient(this.options.connectionString);
+  this._client = new MongoClient(this.options.connectionString, { useNewUrlParser: true });
   this._client.connect(this._onConnect.bind( this ));
 }
 
@@ -231,7 +231,7 @@ Connector.prototype._getParams = function( key ) {
 Connector.prototype._getCollection = function( collectionName ) {
   if ( !this._collections[ collectionName ] ) {
     this._collections[ collectionName ] = this._db.collection( collectionName );
-    this._collections[ collectionName ].createIndexes({ ds_key: 1 });
+    this._collections[ collectionName ].createIndex({ ds_key: 1 });
   }
 
   return this._collections[ collectionName ];

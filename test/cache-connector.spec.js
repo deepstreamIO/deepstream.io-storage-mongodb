@@ -3,7 +3,7 @@ const expect = require("chai").expect;
 const CacheConnector = require( "../src/connector" );
 const EventEmitter = require( "events" ).EventEmitter;
 const settings = {
-  connectionString: process.env.MONGODB_CONNECTION_STRING || "mongodb://127.0.0.1",
+  connectionString: process.env.MONGODB_CONNECTION_STRING || "mongodb://127.0.0.1/deepstream",
   splitChar: "/",
 };
 const MESSAGE_TIME = 20;
@@ -18,8 +18,6 @@ describe( "the message connector has the correct structure", () => {
   });
 
   it( "implements the cache/storage connector interface", () => {
-    expect( typeof cacheConnector.name ).to.equal( "string" );
-    expect( typeof cacheConnector.version ).to.equal( "string" );
     expect( typeof cacheConnector.get ).to.equal( "function" );
     expect( typeof cacheConnector.set ).to.equal( "function" );
     expect( typeof cacheConnector.delete ).to.equal( "function" );
