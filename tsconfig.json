@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "commonjs",
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "strict": true,
+    "lib": ["es2018"],
+    "types": [
+      "node",
+      "mocha"
+    ]
+  },
+  "include": [
+    "src/*",
+    "test/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
