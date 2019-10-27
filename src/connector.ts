@@ -1,13 +1,13 @@
-import * as pckg from '../package.json'
-import {MongoClient, ObjectID, Db, Collection} from 'mongodb'
-import { DeepstreamPlugin, DeepstreamStorage, DeepstreamServices, StorageWriteCallback, StorageReadCallback } from '@deepstream/types'
-import { JSONObject } from '@deepstream/protobuf/dist/types/all';
+import * as pkg from '../package.json'
+import { MongoClient, Db, Collection } from 'mongodb'
+import { DeepstreamPlugin, DeepstreamStorage, DeepstreamServices, StorageWriteCallback, StorageReadCallback, EVENT } from '@deepstream/types'
+import { JSONObject } from '@deepstream/protobuf/dist/types/all'
 
 interface MongoOptions {
-  connectionString: any;
-  defaultCollection: string;
-  splitChar: null;
-
+  connectionString: any
+  db: string
+  defaultCollection: string
+  splitChar: string
 }
 
 /**
@@ -54,12 +54,12 @@ interface MongoOptions {
    connectionString: <String>
    }
  */
-export default class Connector extends DeepstreamPlugin implements DeepstreamStorage {
-  apiVersion?: number | undefined;
+export class Connector extends DeepstreamPlugin implements DeepstreamStorage {
+  public apiVersion?: number | undefined
 
-  public description = `MongoDB Storage: ${pckg.version}`
+  public description = `MongoDB Storage ${pkg.version} using db ${this.options.db}`
 
-  private splitChar: string = this.options.splitChar || ''
+  private splitChar: string = this.options.splitChar || '/'
   private defaultCollection = this.options.defaultCollection || 'deepstream_docs'
   private collections = new Map<string, Collection>()
   private logger = this.services.logger.getNameSpace('MONGODB')
@@ -71,16 +71,16 @@ export default class Connector extends DeepstreamPlugin implements DeepstreamSto
     super()
 
     if (!this.options.connectionString) {
-      this.logger.fatal( "Missing setting 'connectionString'")
+      this.logger.fatal(EVENT.PLUGIN_INITIALIZATION_ERROR, "Missing setting 'connectionString'")
     }
 
-    this.client = new MongoClient(options.connectionString)
+    this.client = new MongoClient(options.connectionString, { useUnifiedTopology: true })
     this.client.connect()
   }
 
   public async whenReady () {
     this.client = await this.client.connect()
-    this.db = this.client.db()
+    this.db = this.client.db(this.options.db)
   }
 
   /**
@@ -90,11 +90,12 @@ export default class Connector extends DeepstreamPlugin implements DeepstreamSto
     const params = this.getParams(key)
 
     if (params === null) {
-      callback('Invalid key ' + key)
+      callback(`Invalid key ${key}`)
       return
     }
 
     value.ds_key = params.id
+    value.ds_version = version
     params.collection.updateOne(
       { ds_key: params.id },
       { $set: value },
@@ -106,28 +107,31 @@ export default class Connector extends DeepstreamPlugin implements DeepstreamSto
   /**
    * Retrieves a value from the cache
    */
-  public get ( key: string, callback: StorageReadCallback ) {
-    const params = this.getParams( key )
+  public get (key: string, callback: StorageReadCallback) {
+    const params = this.getParams(key )
 
     if ( params === null ) {
-      callback( 'Invalid key ' + key )
+      callback(`Invalid key ${key}`)
       return
     }
 
-    params.collection.findOne({ ds_key: params.id }, (err, doc) => {
-      if (err) {
-        this.logger.error('Error retrieving mondodb entry', err.toString())
+    params.collection.findOne({ ds_key: params.id }, (error, doc) => {
+      if (error) {
+        // this.logger.error(EVENT.ERROR, 'Error retrieving mongodb entry', { error })
         callback('Error getting object')
-      }
-
-      if ( doc === null ) {
-        callback( null, -1, null )
         return
       }
 
+      if (doc === null) {
+        callback(null, -1, null)
+        return
+      }
+
+      const version = doc.ds_version
       delete doc._id
       delete doc.ds_key
-      callback( null, doc.__ds._v, doc)
+      delete doc.ds_version
+      callback( null, version, doc)
     })
   }
 
@@ -138,15 +142,15 @@ export default class Connector extends DeepstreamPlugin implements DeepstreamSto
     const params = this.getParams(key)
 
     if (params === null) {
-      callback( 'Invalid key ' + key )
+      callback('Invalid key ' + key )
       return
     }
 
     params.collection.deleteOne({ ds_key: params.id }, callback as any)
   }
 
-  public deleteBulk(recordNames: string[], callback: StorageWriteCallback): void {
-    throw new Error("Method not implemented.");
+  public deleteBulk (recordNames: string[], callback: StorageWriteCallback): void {
+    throw new Error('Method not implemented.')
   }
 
   /**
@@ -155,7 +159,7 @@ export default class Connector extends DeepstreamPlugin implements DeepstreamSto
    *
    * Creates the collection if it doesn't exist yet.
    *
-   * Since MongoDB ObjecIDs are adhering to a specified format
+   * Since MongoDB Object IDs are adhering to a specified format
    * we'll add a new field for the key called ds_key and index the
    * collection based on it
    */
@@ -194,3 +198,5 @@ export default class Connector extends DeepstreamPlugin implements DeepstreamSto
   }
 
 }
+
+export default Connector
