@@ -1,13 +1,16 @@
 {
-  "name": "deepstream.io-storage-mongodb",
-  "version": "1.1.1",
-  "description": "A template that can be forked to create new cache and storage connectors for deepstream.io",
-  "main": "src/connector.js",
+  "name": "@deepstream/storage-mongodb",
+  "version": "2.0.2",
+  "description": "Connects deepstream.io to mongodb",
+  "main": "dist/src/connector.js",
   "scripts": {
-    "test": "mocha --exit",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha",
-    "lint": "eslint \"src/**/*.js\" \"test/**/*.js\"",
-    "ci": "npm run coverage && npm run lint"
+    "tsc": "tsc",
+    "lint": "tslint --project .",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "mocha --opts mocha.opts 'test/*.spec.ts'",
+    "coverage": "nyc mocha --exit",
+    "ci": "npm run coverage",
+    "docker": "docker run -p 27017:27017 mongo"
   },
   "repository": {
     "type": "git",
@@ -20,15 +23,19 @@
   },
   "homepage": "http://deepstream.io",
   "dependencies": {
-    "mongodb": "~3.2",
-    "underscore": "^1.9.1"
+    "@deepstream/types": "^1.0.3",
+    "mongodb": "~3.3"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.3.6",
+    "@deepstream/protobuf": "^1.0.1",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.11.7",
     "chai": "^4.2.0",
-    "coveralls": "^3.0.3",
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb": "^17.1.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^6.0.2"
+    "coveralls": "^3.0.7",
+    "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
   }
 }
