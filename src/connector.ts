@@ -89,6 +89,10 @@ export class Connector extends DeepstreamPlugin implements DeepstreamStorage {
   public set (key: string, version: number, value: JSONObject, callback: StorageWriteCallback) {
     const params = this.getParams(key)
 
+    if (value instanceof Array) {
+      value = { ds_list: value }
+    }
+
     if (params === null) {
       callback(`Invalid key ${key}`)
       return
@@ -131,6 +135,11 @@ export class Connector extends DeepstreamPlugin implements DeepstreamStorage {
       delete doc._id
       delete doc.ds_key
       delete doc.ds_version
+
+      if (doc.ds_list instanceof Array) {
+        doc = doc.ds_list
+      }
+
       callback( null, version, doc)
     })
   }
