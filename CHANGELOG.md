@@ -1,3 +1,9 @@
+## [2.0.4] 2019-11-24
+  
+### Fix
+
+- Saving lists (@valentinvichnal)
+
 ## [2.0.3] 2019-11-04
   
 ### Refactor

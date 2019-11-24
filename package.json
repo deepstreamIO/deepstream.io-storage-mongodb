@@ -1,6 +1,6 @@
 {
   "name": "@deepstream/storage-mongodb",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Connects deepstream.io to mongodb",
   "main": "dist/src/connector.js",
   "scripts": {
