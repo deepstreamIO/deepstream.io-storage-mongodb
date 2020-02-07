@@ -25,16 +25,5 @@ node_js:
 script:
   - npm run test
 
-deploy:
-  - provider: releases
-    skip_cleanup: true
-    api_key: ${GITHUB_TOKEN}
-    file_glob: true
-    file:
-      - "build/*.tar.gz"
-      - "build/*.zip"
-    on:
-      tags: true
-
 after_script:
   - "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
