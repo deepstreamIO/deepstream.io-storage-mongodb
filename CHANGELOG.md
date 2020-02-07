@@ -1,3 +1,9 @@
+## [2.0.6] 2020-02-08
+  
+### Improvement
+
+Updating dependencies
+
 ## [2.0.4] 2019-11-24
   
 ### Fix
