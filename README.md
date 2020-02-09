@@ -1,10 +1,10 @@
-# deepstream.io-storage-mongodb [![npm version](https://badge.fury.io/js/deepstream.io-storage-mongodb.svg)](http://badge.fury.io/js/deepstream.io-storage-mongodb)
+# deepstream.io-storage-mongodb [![npm version](https://badge.fury.io/js/%40deepstream%2Fstorage-mongodb.svg)](https://badge.fury.io/js/%40deepstream%2Fstorage-mongodb)
 
 [deepstream](http://deepstream.io) storage connector for [mongodb](https://www.mongodb.org/)
 
 This connector uses [the npm mongodb package](https://www.npmjs.com/package/mongodb). Please have a look there for detailed options.
 
-##Basic Setup
+## Basic Setup
 ```yaml
 plugins:
   storage:
