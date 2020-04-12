@@ -31,6 +31,7 @@ jobs:
       - coveralls/upload
 
   deploy:
+    context: connectors
     docker:
       - image: circleci/node:lts
     working_directory: ~/circleci-build
