@@ -7,9 +7,9 @@
     "tsc": "tsc",
     "lint": "tslint --project .",
     "lint:fix": "npm run lint -- --fix",
-    "test": "mocha --opts mocha.opts 'test/*.spec.ts'",
-    "coverage": "nyc mocha --exit",
-    "ci": "npm run coverage",
+    "test": "mocha --opts mocha.opts 'test/*.spec.ts' --exit",
+    "coverage": "nyc mocha --opts mocha.opts 'test/*.spec.ts' --exit",
+    "ci": "npm run tsc && npm run coverage",
     "docker": "docker run -p 27017:27017 mongo"
   },
   "repository": {
