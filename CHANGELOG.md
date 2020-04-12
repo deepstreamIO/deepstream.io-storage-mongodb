@@ -1,3 +1,10 @@
+## [2.0.8] - 2020-04-12
+
+### Improvement
+
+- Updating dependencies
+- Switching to circleci
+
 ## [2.0.7] 2020-04-11
   
 ### Fix
