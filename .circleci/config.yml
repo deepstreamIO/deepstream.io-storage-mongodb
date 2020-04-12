@@ -31,7 +31,6 @@ jobs:
       - coveralls/upload
 
   deploy:
-    context: connectors
     docker:
       - image: circleci/node:lts
     working_directory: ~/circleci-build
@@ -52,6 +51,7 @@ workflows:
               tags:
                 only: /^v.*/
         - deploy:
+            context: connectors
             requires:
               - build-and-test
             filters:
